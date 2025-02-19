@@ -64,21 +64,26 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL Clang AND CMAKE_CXX_COMPILER_VERSION VERSION_
     message(SEND_ERROR "Clang/libFuzzer >=12.0.0 is needed but you are using ${CMAKE_CXX_COMPILER_VERSION}, please fix.")
 endif()
 
-set(CMAKE_REQUIRED_FLAGS "-fsanitize=address")
+check_cxx_compiler_flag(-Wno-unknown-warning-option LIB_PROTO_MUTATOR_WARNING_AID)
+if (LIB_PROTO_MUTATOR_WARNING_AID)
+  set(_extra_flags -Wno-unknown-warning-option)
+endif ()
+
+set(CMAKE_REQUIRED_FLAGS "-fsanitize=address ${_extra_flags}")
 check_cxx_compiler_flag(-fsanitize=address LIB_PROTO_MUTATOR_HAS_SANITIZE_ADDRESS)
 check_cxx_compiler_flag("-fsanitize=address -fsanitize-address-use-after-scope"
                         LIB_PROTO_MUTATOR_HAS_SANITIZE_SCOPE)
 unset(CMAKE_REQUIRED_FLAGS)
 
-set(CMAKE_REQUIRED_FLAGS "-fsanitize-coverage=0")
+set(CMAKE_REQUIRED_FLAGS "-fsanitize-coverage=0 ${_extra_flags}")
 check_cxx_compiler_flag(-fsanitize-coverage= LIB_PROTO_MUTATOR_HAS_NO_COVERAGE)
 unset(CMAKE_REQUIRED_FLAGS)
 
-set(CMAKE_REQUIRED_FLAGS "-fsanitize=fuzzer-no-link")
+set(CMAKE_REQUIRED_FLAGS "-fsanitize=fuzzer-no-link ${_extra_flags}")
 check_cxx_compiler_flag(-fsanitize=fuzzer-no-link LIB_PROTO_MUTATOR_HAS_SANITIZE_FUZZER)
 unset(CMAKE_REQUIRED_FLAGS)
 
-set(CMAKE_REQUIRED_FLAGS "-fno-sanitize=fuzzer")
+set(CMAKE_REQUIRED_FLAGS "-fno-sanitize=fuzzer ${_extra_flags}")
 check_cxx_compiler_flag(-fno-sanitize=fuzzer LIB_PROTO_MUTATOR_HAS_NO_SANITIZE_FUZZER)
 unset(CMAKE_REQUIRED_FLAGS)
 
